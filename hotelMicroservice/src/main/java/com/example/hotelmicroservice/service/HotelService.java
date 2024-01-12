@@ -16,13 +16,15 @@ public class HotelService {
 
     public List<Hotel> searchHotel(String searchString){
         List<Hotel> listHotel = hotelRepository.findAll();
-
         for(Hotel hotel :listHotel){
             System.out.println(hotel.getHotelName());
         }
         searchString = "%"+ searchString + "%";
-
-
         return hotelRepository.findByHotelNameLikeOrAddressLikeOrCityLikeOrStateLike(searchString,searchString,searchString,searchString);
+    }
+
+    public Hotel searchHotelById(int hotelId){
+
+        return hotelRepository.findById(hotelId).orElse(null);
     }
 }

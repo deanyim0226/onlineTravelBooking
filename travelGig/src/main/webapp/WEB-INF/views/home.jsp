@@ -11,19 +11,57 @@
     <script>
         $(document).ready(function(){
 
+            $("#tb1Hotel").on("click",".image",function(){
+
+                let id = $(this).attr("data-id")
+
+                let noRooms = $("#noRooms").val();
+                let noGuests = $("#noGuests").val();
+                let checkInDate = $("#checkInDate").val();
+                let checkOutDate = $("#checkOutDate").val();
+
+                $("#modal_noGuests").val(noGuests);
+                $("#modal_noRooms").val(noRooms);
+                $("#modal_checkInDate").val(checkInDate);
+                $("#modal_checkOutDate").val(checkOutDate);
+
+                //1. make an api call to retrieve hotel name by using hotel Id
+                $.ajax({
+                    type: "GET",
+                    url: "/searchHotelById/" +id,
+                    success: function(response){
+                        $("#modal_hotelName").val(response.hotelName);
+                    }
+                })
+
+                //2. make an api call to retrieve hotel room type
+                $.ajax({
+                    type:"GET",
+                    url:"/getHotelRooms",
+                    success: function(response){
+                        $.each(response,function(key,value){
+                            $("#select_roomTypes").append("<option>"+value.description + "</option>")
+                        })
+                    },
+                    error: function (err){
+                        alert("something wrong while retrieving hotel rooms")
+                    }
+                })
+
+                $("#myModal").modal('show')
+            })
+
             $("#searchBtn").click(function(){
 
                 var searchString = $("#searchLocation").val();
-                $.get("/searchHotel/"+searchString, {
-                    "searchString":searchString
-                }, function(response){
-
+                $.get("/searchHotel/"+searchString,
+                    function(response){
                     $.each(response,function(index,val){
                         console.log(index)
                         console.log(val)
 
                         $("#tb1Hotel").append("<tr><td>" +val.hotelName + "</td><td>" +val.address +
-                            "</td><td>" + val.averagePrice + "</td><td><img src='"+val.imageURL+"' width='300' height='300'></img></td><td>" +
+                            "</td><td>" + val.averagePrice + "</td><td><img class='image' data-id='"+val.hotelId+"' src='"+val.imageURL+"' width='300' height='300'></img></td><td>" +
                             val.starRating + "</td></tr>")
                     })
                 })
@@ -33,26 +71,27 @@
                 $("#tb1Hotel tr").not(":first").show();
 
                 var selectedPrice = parseInt($("#priceValue").text());
-                var selectedRating = {};
+                var selectedRating = new Map();
 
                 if($("#1_star_rating").is(":checked")){
-                    selectedRating[$("#1_star_rating").val()] = $("#1_star_rating").val()
+                    selectedRating.set($("#1_star_rating").val(), $("#1_star_rating").val());
+              //    selectedRating[$("#1_star_rating").val()] = $("#1_star_rating").val()
                 }
 
                 if($("#2_star_rating").is(":checked")){
-                    selectedRating[$("#2_star_rating").val()] = $("#2_star_rating").val()
+                    selectedRating.set($("#2_star_rating").val(), $("#2_star_rating").val());
                 }
 
                 if($("#3_star_rating").is(":checked")){
-                    selectedRating[$("#3_star_rating").val()] = $("#3_star_rating").val()
+                    selectedRating.set($("#3_star_rating").val(), $("#3_star_rating").val());
                 }
 
                 if($("#4_star_rating").is(":checked")){
-                    selectedRating[$("#4_star_rating").val()] = $("#4_star_rating").val()
+                    selectedRating.set($("#4_star_rating").val(), $("#4_star_rating").val());
                 }
 
                 if($("#5_star_rating").is(":checked")){
-                    selectedRating[$("#5_star_rating").val()] = $("#5_star_rating").val()
+                    selectedRating.set($("#5_star_rating").val(), $("#5_star_rating").val());
                 }
 
 
@@ -64,15 +103,20 @@
                         $(this).hide();
                     }
 
-                    if(rating in selectedRating){
-                        $(this).show();
-                    }else{
+                    if(selectedRating.size == 0){
+
+                    }else if(!selectedRating.has(rating)){
                         $(this).hide();
                     }
 
 
+
+
                 })
             })
+
+
+
 
         })
     </script>
@@ -148,7 +192,7 @@
 
         Range:
         <div class="slidecontainer">
-            <input type="range" min="1" max="500" value="500" class="slider" id="priceRange">
+            <input type="range" min="1" max="5000" value="5000" class="slider" id="priceRange">
             <p>Price: $<span id="priceValue"></span></p>
         </div>
 

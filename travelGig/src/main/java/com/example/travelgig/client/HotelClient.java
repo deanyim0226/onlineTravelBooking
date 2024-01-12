@@ -20,9 +20,21 @@ public class HotelClient {
         Object objects = responseEntity.getBody();
 
         ObjectMapper mapper = new ObjectMapper();
-        JsonNode returnObj = mapper.convertValue(objects, JsonNode.class);
+        JsonNode hotels = mapper.convertValue(objects, JsonNode.class);
 
-        System.out.println(returnObj.toString());
-        return returnObj;
+        System.out.println(hotels.toString());
+        return hotels;
+    }
+
+    public JsonNode searchHotelById(int hotelId){
+
+        RestTemplate restTemplate = new RestTemplate();
+        ResponseEntity<Object> responseEntity = restTemplate.getForEntity("http://localhost:8383/searchHotelById/"+ hotelId, Object.class);
+
+        Object object = responseEntity.getBody();
+        ObjectMapper mapper = new ObjectMapper();
+        JsonNode hotel = mapper.convertValue(object, JsonNode.class);
+
+        return hotel;
     }
 }

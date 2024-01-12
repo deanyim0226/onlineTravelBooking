@@ -20,4 +20,10 @@ public class HotelController {
         System.out.println("hotel controller from brower is called");
         return hotelClient.searchHotel(searchString);
     }
+
+    @RequestMapping(value = "/searchHotelById/{hotelId}", method = RequestMethod.GET)
+    public JsonNode searchHotelById(@PathVariable int hotelId){
+
+        return hotelClient.searchHotelById(hotelId);
+    }
 }

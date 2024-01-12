@@ -18,4 +18,10 @@ public class HotelController {
 
         return hotelService.searchHotel(searchString);
     }
+
+    @RequestMapping(value = "/searchHotelById/{hotelId}", method = RequestMethod.GET)
+    public Hotel searchHotelById(@PathVariable int hotelId){
+
+        return hotelService.searchHotelById(hotelId);
+    }
 }
