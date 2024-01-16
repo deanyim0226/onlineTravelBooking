@@ -51,9 +51,61 @@
                 $("#myModal").modal('show')
             })
 
+            $("#searchHotelRoom").click(function(){
+
+                $("#myModal").modal('hide')
+
+                let noGuests = $("#modal_noGuests").val();
+                let noRooms =  $("#modal_noRooms").val();
+                let checkInDate = $("#modal_checkInDate").val();
+                let checkOutDate =  $("#modal_checkOutDate").val();
+                let hotelName = $("#modal_hotelName").val();
+                let roomType =  $("#select_roomTypes").val();
+
+                $("#booking_hotelName").val(hotelName);
+                $("#booking_noGuests").val(noGuests);
+                $("#booking_noRooms").val(noRooms);
+                $("#booking_checkInDate").val(checkInDate);
+                $("#booking_checkOutDate").val(checkOutDate);
+                $("#booking_checkInDate").val(noGuests);
+                $("#booking_roomType").val(roomType);
+
+                $.ajax({
+                    type:"GET",
+                    url:"/getHotelRooms",
+                    success: function(response){
+                        $.each(response,function(key,value){
+
+                            if(value.description === roomType){
+                                let discountPercentage = value.discount * 0.01;
+                                let totalWithoutDiscount = noRooms * value.price;
+
+                                let discountAmount = totalWithoutDiscount * discountPercentage;
+                                let total = totalWithoutDiscount - discountAmount;
+
+                                $("#booking_discount").text(discountAmount);
+                                $("#booking_price").text(total);
+                            }
+
+                        })
+                    },
+                    error: function (err){
+                        alert("something wrong while retrieving hotel rooms")
+                    }
+                })
+
+
+
+
+                $("#bookingHotelRoomModal").modal('show')
+
+            })
+
             $("#searchBtn").click(function(){
 
                 var searchString = $("#searchLocation").val();
+                $("#tb1Hotel tr:not(:first)").remove();
+
                 $.get("/searchHotel/"+searchString,
                     function(response){
                     $.each(response,function(index,val){
@@ -108,9 +160,6 @@
                     }else if(!selectedRating.has(rating)){
                         $(this).hide();
                     }
-
-
-
 
                 })
             })
@@ -256,9 +305,8 @@
                     <select class="form-control" id="select_roomTypes">
                     </select>
                     No. Rooms: <input class="form-control" type="number" id="modal_noRooms"/>
-                    <input style="margin-top:25px" class="btn btn-searchHotelRooms form-control btn-primary" type="button" id="" value="SEARCH"/>
+                    <input style="margin-top:25px" class="btn btn-searchHotelRooms form-control btn-primary" type="button" id="searchHotelRoom" value="SEARCH"/>
                 </div>
-
             </div>
 
             <!-- Modal footer -->

@@ -10,6 +10,6 @@ import java.util.List;
 @Repository
 public interface HotelRepository extends JpaRepository<Hotel,Integer> {
 
-    public List<Hotel> findByHotelNameLikeOrAddressLikeOrCityLikeOrStateLike(String hotelName,String address,String city, String state);
+    public List<Hotel> findByHotelNameLikeIgnoreCaseOrAddressLikeIgnoreCaseOrCityLikeIgnoreCaseOrStateLikeIgnoreCase (String hotelName,String address,String city, String state);
 
 }

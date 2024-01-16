@@ -19,8 +19,9 @@ public class HotelService {
         for(Hotel hotel :listHotel){
             System.out.println(hotel.getHotelName());
         }
+
         searchString = "%"+ searchString + "%";
-        return hotelRepository.findByHotelNameLikeOrAddressLikeOrCityLikeOrStateLike(searchString,searchString,searchString,searchString);
+        return hotelRepository.findByHotelNameLikeIgnoreCaseOrAddressLikeIgnoreCaseOrCityLikeIgnoreCaseOrStateLikeIgnoreCase(searchString,searchString,searchString,searchString);
     }
 
     public Hotel searchHotelById(int hotelId){

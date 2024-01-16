@@ -21,4 +21,5 @@ public class HotelRoomController {
 
         return hotelRoomService.getAllHotelRooms();
     }
+
 }
