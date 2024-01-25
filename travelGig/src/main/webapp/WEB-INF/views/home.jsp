@@ -1,3 +1,4 @@
+<%@ taglib prefix="s" uri="http://www.springframework.org/security/tags" %>
 <!DOCTYPE html>
 <html>
 <head>
@@ -8,8 +9,115 @@
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
     <link rel="stylesheet" type="text/css" href="home.css">
+
     <script>
         $(document).ready(function(){
+
+            $("#confirm-guest").click(function(){
+                let guestList = []
+
+                $("tr.guest-row").each(function(){
+
+                    let firstName = $(this).find("input.guest-firstname").val()
+                    let lastName = $(this).find("input.guest-lastname").val()
+                    let gender = $(this).find("input.guest-gender").val()
+                    let age = $(this).find("input.guest-age").val()
+
+                    let guest = {firstName,lastName,gender,age}
+
+                    guestList.push(guest)
+                })
+
+                //@SessionAttribute as long as session (Logged-in) is there, this is in scope
+                //send a request using ajax to save guest into database
+
+                $.each(guestList,function(index,element){
+
+                    $.ajax({
+                        type:"POST",
+                        contentType:"application/json",
+                        url:"http://localhost:8282/saveGuest",
+                        data: JSON.stringify(element),
+                        dataType:"json",
+                        success:function(response){
+                            alert("successfully added " + response);
+                        },
+                        error:function(err){
+                            alert("error while saving guest" + err.toString());
+                        }
+                    })
+
+                })
+
+                /*
+                think about the way to retrieve booking information
+                 */
+            })
+
+            $("#add-guestInfo").click(function(){
+                let noGuest = $("#modal_noGuests").val();
+
+                $("#bookingHotelRoomModal").modal('hide')
+                $("#bookingGuestInfoModal").modal('show')
+
+                $("#guestTable tr:not(:first)").remove();
+
+                for(let i=0; i < noGuest; i++){
+                    let gNumber = i +1;
+                    $("#guestTable").append("<tr class='guest-row'><td class='form-control'>"+ gNumber +
+                        "</td><td><input class='guest-firstname form-control' type='text'></td>" +
+                        "<td><input class='guest-lastname form-control' type='text'></td>" +
+                        "<td><input class='guest-gender form-control' type='text'></td>" +
+                        "<td><input class='guest-age form-control' type='text'></td>" +
+                        "</tr>")
+                }
+
+
+
+                /*
+                save n number of guests
+                after saving n number of guests,
+
+                put all the quests into a set data structure for saving booking info
+
+    private int bookingId; //will generate automatically
+    private int hotelId; // can get upon clicking initial search hotel
+    private int hotelRoomId; /can get from hotel room entity
+    private int noRooms; //can get search modal
+
+    private Set<Guest> guests; // can get guest-info
+
+    private LocalDate checkInDate; //can get search modal
+    private LocalDate checkOutDate; //can get search modal
+    private LocalDate bookedOnDate; // will generate upon saving booking
+
+    private String status; 			// CANCELED, COMPLETED (can be simply compared), UPCOMING
+
+    private float  price;       //from hotel average price?? base price
+    private float  discount; // from hotel room?
+    private String customerMobile;  // USE this to identify the customer who booked
+    private String roomType; // can get search modal
+
+    private String userName;	//can get from user entity
+    private String userEmail;   //can get from user entity
+
+    private float  taxRateInPercent; //?? 7.5%? depends on city?
+    private float  finalCharges; // after adding tax?
+
+    private float  bonanzaDiscount; // from hotel discout??
+    private float  totalSavings; // amount of discout applied?
+
+upon successfully booking a hotel
+save guest info into the database
+and save booking info into database
+                 */
+
+            })
+
+            $("#guest-back").click(function(){
+                $("#bookingGuestInfoModal").modal('hide')
+                $("#bookingHotelRoomModal").modal('show')
+            })
 
             $("#tb1Hotel").on("click",".image",function(){
 
@@ -39,6 +147,7 @@
                     type:"GET",
                     url:"/getHotelRooms",
                     success: function(response){
+
                         $.each(response,function(key,value){
                             $("#select_roomTypes").append("<option>"+value.description + "</option>")
                         })
@@ -95,10 +204,13 @@
                 })
 
 
-
-
                 $("#bookingHotelRoomModal").modal('show')
 
+            })
+
+            $("#edit-hotelInfo").click(function(){
+                $("#bookingHotelRoomModal").modal('hide')
+                $("#myModal").modal('show')
             })
 
             $("#searchBtn").click(function(){
@@ -174,6 +286,16 @@
 <div class="container" style="margin-left:100px">
     <h1>Welcome to Travel Gig</h1>
     <h2>Search your desired hotel</h2>
+
+    <%
+        Object user = request.getAttribute("user");
+    %>
+
+
+    <s:authorize access="isAuthenticated()">
+        <br> User: <s:authentication property="principal.username"/>
+        <li class = "nav-item"><a class="btn btn-dark dropdown"  href="/logout">LOGOUT</a></li>
+    </s:authorize>
 </div>
 
 <div class="container border rounded" style="margin:auto;padding:50px;margin-top:50px;margin-bottom:50px">
@@ -318,6 +440,43 @@
     </div>
 </div>
 
+<div class="modal" id="bookingGuestInfoModal">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+
+            <!-- Modal Header -->
+            <div class="modal-header">
+                <h4 class="modal-title">GUEST INFO</h4>
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+
+            <!-- Modal body -->
+            <div class="modal-body" id="GuestInfo_modalBody">
+                <table id="guestTable">
+                    <tr>
+                        <th></th>
+                        <th>FirstName</th>
+                        <th>LastName</th>
+                        <th>Gender</th>
+                        <th>Age</th>
+                    </tr>
+                </table>
+                <div style='margin-top:20px'>
+                    <button class='btn-confirm-booking btn btn-primary' id="confirm-guest">Confirm Booking</button>
+                    <button class='btn-confirm-booking btn btn-primary' id="guest-back">Back</button>
+                </div>
+            </div>
+
+            <!-- Modal footer -->
+            <div class="modal-footer">
+                <button type="button" class="btn btn-danger" data-dismiss="modal">Close</button>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+
 <div class="modal" id="hotelRoomsModal">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
@@ -367,8 +526,8 @@
                     <div>Discount: $<span id="booking_discount"></span></div>
                     <div>Total Price: $<span id="booking_price"></span></div>
                     <div style='margin-top:20px'>
-                        <button class='btn-confirm-booking btn btn-primary'>Confirm Booking</button>
-                        <button class='btn btn-primary'>Edit</button>
+                        <button class='btn-confirm-booking btn btn-primary' id="add-guestInfo">Add GuestInfo</button>
+                        <button class='btn btn-primary' id="edit-hotelInfo">Edit</button>
                     </div>
                 </div>
             </div>

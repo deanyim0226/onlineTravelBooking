@@ -10,4 +10,9 @@ public class BookingMicroserviceApplication {
         SpringApplication.run(BookingMicroserviceApplication.class, args);
     }
 
+    /*
+    Authentication -> login purpose only authetic user can access
+
+    Authorization ->  role purpose
+     */
 }
