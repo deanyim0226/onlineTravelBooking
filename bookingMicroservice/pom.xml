@@ -17,6 +17,18 @@
         <java.version>17</java.version>
     </properties>
     <dependencies>
+        <!--Email -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-mail</artifactId>
+        </dependency>
+        <!--PDF -->
+        <dependency>
+            <groupId>com.itextpdf</groupId>
+            <artifactId>itextpdf</artifactId>
+            <version>5.0.6</version>
+        </dependency>
+
         <!-- using JAP IN JAVA SPRING -->
         <dependency>
             <groupId>org.springframework.boot</groupId>

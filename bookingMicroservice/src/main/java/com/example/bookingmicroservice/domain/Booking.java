@@ -1,6 +1,8 @@
 package com.example.bookingmicroservice.domain;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
+import org.springframework.format.annotation.DateTimeFormat;
 
 
 import java.time.LocalDate;
@@ -15,28 +17,32 @@ public class Booking {
     private int bookingId;
 
     private int hotelId; //communicates with hotel management to fetch hotel details
-    private int hotelRoomId;
-    private int noRooms;
+    private int hotelRoomId; //hotel room
+    private int noRooms; //hotel room
 
     @ManyToMany(cascade = CascadeType.ALL)
+    @JsonBackReference
     private Set<Guest> guests;
 
+    @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
     private LocalDate checkInDate;		// TODO: Change the datatype
+    @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
     private LocalDate checkOutDate;	// TODO: Change the datatype
+    @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
     private LocalDate bookedOnDate;	// TODO: Change the datatype
 
     private String status; 			// CANCELED, COMPLETED (can be simply compared), UPCOMING
-
-    private float  price;       //based on room?
-    private float  discount;    //room
+//checkin date is less than completed
+    private float  price;       //based on room? hotel room
+    private float  discount;    //room hotel room
     private String customerMobile;  // USE this to identify the customer who booked
-    private String roomType;
+    private String roomType; // hotel room
 
     private String userName;		// Save the userName for searching the Bookings
     private String userEmail;		// Save the userEmail for searching the Bookings
 
-    private float  taxRateInPercent;
-    private float  finalCharges;
+    private float  taxRateInPercent; //fixed value
+    private float  finalCharges; // after applied discount and tax
 
     private float  bonanzaDiscount; //ignore
     private float  totalSavings; //0

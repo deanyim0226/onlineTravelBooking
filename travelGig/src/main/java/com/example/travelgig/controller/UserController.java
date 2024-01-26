@@ -17,6 +17,7 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 
+import java.security.Principal;
 import java.util.List;
 import java.util.Set;
 
@@ -53,12 +54,13 @@ public class UserController {
 
     }
 
-    @RequestMapping(value = "/signup")
-    public ModelAndView signup(User user) {
-        ModelAndView mav = new ModelAndView("signup");
+    @RequestMapping(value = "/getCurrentUser", method = RequestMethod.GET)
+    public User getCurrentUser(Principal principal){
 
-        mav.addObject("roles",roleService.findAll());
-        return mav;
+        User currentUser = userService.findByUserName(principal.getName());
+        System.out.println(currentUser.getUserName());
+
+        return currentUser;
     }
 
     @RequestMapping(value = "/saveUser")
@@ -83,7 +85,6 @@ public class UserController {
     @RequestMapping(value = "/role")
     public ModelAndView role(Role role) {
         ModelAndView mav = new ModelAndView("role");
-
         return mav;
     }
 
@@ -95,5 +96,12 @@ public class UserController {
         return mav;
     }
 
+    @RequestMapping(value = "/signup")
+    public ModelAndView signup(User user) {
+        ModelAndView mav = new ModelAndView("signup");
+
+        mav.addObject("roles",roleService.findAll());
+        return mav;
+    }
 
 }

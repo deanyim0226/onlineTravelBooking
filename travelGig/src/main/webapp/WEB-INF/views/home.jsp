@@ -30,6 +30,7 @@
 
                 //@SessionAttribute as long as session (Logged-in) is there, this is in scope
                 //send a request using ajax to save guest into database
+                let savedGuestList = []
 
                 $.each(guestList,function(index,element){
 
@@ -37,10 +38,12 @@
                         type:"POST",
                         contentType:"application/json",
                         url:"http://localhost:8282/saveGuest",
+                        async: false,
                         data: JSON.stringify(element),
                         dataType:"json",
                         success:function(response){
                             alert("successfully added " + response);
+                            savedGuestList.push(response);
                         },
                         error:function(err){
                             alert("error while saving guest" + err.toString());
@@ -52,6 +55,60 @@
                 /*
                 think about the way to retrieve booking information
                  */
+
+                let hotelId = $("#booking_hotelId").val();
+                let hotelRoomId = $("#booking_hotelRoomId").val();
+                let noRooms = $("#booking_noRooms").val();
+                let guests = savedGuestList;
+                let checkInDate = $("#booking_checkInDate").val();
+                let checkOutDate = $("#booking_checkOutDate").val();
+                let bookedOnDate = new Date() //date to set
+                let status = "UPCOMING" // by default
+                let price = $("#booking_hotel_price").text();
+                let discount = $("#booking_discount").text();
+                let customerMobile = $("#booking_customerMobile").val();
+                let roomType = $("#booking_roomType").val();
+                let userName = "";
+                let userEmail = "";
+                let taxRateInPercent = 0.075;
+                let finalCharges = $("#booking_final_price").text();
+
+                /*
+                think about way to retrieve the current user
+                 */
+
+                 $.ajax({
+                     type:"GET",
+                     url:"http://localhost:8282/getCurrentUser",
+                     async: false,
+                    success:function(response){
+                        userName = response.userName;
+                        userEmail = response.email;
+
+                    },
+                    error:function(err){
+                        alert("error while retrieving user " + err)
+                    }
+                })
+
+                let booking = { hotelId, hotelRoomId, noRooms, guests, checkInDate, checkOutDate, bookedOnDate, status,
+                    price, discount, customerMobile, roomType, userName, userEmail, taxRateInPercent, finalCharges }
+
+                $.ajax({
+                    type:"POST",
+                    contentType:"application/json",
+                    url:"http://localhost:8282/saveBooking",
+                    async: false,
+                    data: JSON.stringify(booking),
+                    dataType:"json",
+                    success:function(response){
+                        alert("successfully saved booking")
+                    },
+                    error:function(err){
+                        alert("error while saving booking info " + err)
+                    }
+                })
+
             })
 
             $("#add-guestInfo").click(function(){
@@ -72,46 +129,6 @@
                         "</tr>")
                 }
 
-
-
-                /*
-                save n number of guests
-                after saving n number of guests,
-
-                put all the quests into a set data structure for saving booking info
-
-    private int bookingId; //will generate automatically
-    private int hotelId; // can get upon clicking initial search hotel
-    private int hotelRoomId; /can get from hotel room entity
-    private int noRooms; //can get search modal
-
-    private Set<Guest> guests; // can get guest-info
-
-    private LocalDate checkInDate; //can get search modal
-    private LocalDate checkOutDate; //can get search modal
-    private LocalDate bookedOnDate; // will generate upon saving booking
-
-    private String status; 			// CANCELED, COMPLETED (can be simply compared), UPCOMING
-
-    private float  price;       //from hotel average price?? base price
-    private float  discount; // from hotel room?
-    private String customerMobile;  // USE this to identify the customer who booked
-    private String roomType; // can get search modal
-
-    private String userName;	//can get from user entity
-    private String userEmail;   //can get from user entity
-
-    private float  taxRateInPercent; //?? 7.5%? depends on city?
-    private float  finalCharges; // after adding tax?
-
-    private float  bonanzaDiscount; // from hotel discout??
-    private float  totalSavings; // amount of discout applied?
-
-upon successfully booking a hotel
-save guest info into the database
-and save booking info into database
-                 */
-
             })
 
             $("#guest-back").click(function(){
@@ -125,9 +142,9 @@ and save booking info into database
 
                 let noRooms = $("#noRooms").val();
                 let noGuests = $("#noGuests").val();
-                let checkInDate = $("#checkInDate").val();
-                let checkOutDate = $("#checkOutDate").val();
-
+                let checkInDate = new Date($("#checkInDate").val()) ;
+                let checkOutDate = new Date($("#checkOutDate").val());
+                $("#booking_hotelId").val(id);
                 $("#modal_noGuests").val(noGuests);
                 $("#modal_noRooms").val(noRooms);
                 $("#modal_checkInDate").val(checkInDate);
@@ -176,7 +193,6 @@ and save booking info into database
                 $("#booking_noRooms").val(noRooms);
                 $("#booking_checkInDate").val(checkInDate);
                 $("#booking_checkOutDate").val(checkOutDate);
-                $("#booking_checkInDate").val(noGuests);
                 $("#booking_roomType").val(roomType);
 
                 $.ajax({
@@ -191,9 +207,17 @@ and save booking info into database
 
                                 let discountAmount = totalWithoutDiscount * discountPercentage;
                                 let total = totalWithoutDiscount - discountAmount;
+                                let tax = total * 0.075;
 
+                                let finalPrice = total + tax;
+
+
+                                $("#booking_hotel_price").text(totalWithoutDiscount);
                                 $("#booking_discount").text(discountAmount);
-                                $("#booking_price").text(total);
+                                $("#booking_tax").text(tax)
+                                $("#booking_final_price").text(finalPrice)
+
+                                $("#booking_hotelRoomId").val(value.hotelRoomId)
                             }
 
                         })
@@ -288,6 +312,7 @@ and save booking info into database
     <h2>Search your desired hotel</h2>
 
     <%
+
         Object user = request.getAttribute("user");
     %>
 
@@ -523,8 +548,11 @@ and save booking info into database
                     <div>Check-In Date: <input readonly="true" class="form-control" type="text" id="booking_checkInDate"/></div>
                     <div>Check-Out Date: <input readonly="true" class="form-control" type="text" id="booking_checkOutDate"/></div>
                     <div>Room Type: <input readonly="true" class="form-control" type="text" id="booking_roomType"/></div>
-                    <div>Discount: $<span id="booking_discount"></span></div>
-                    <div>Total Price: $<span id="booking_price"></span></div>
+                    <br>
+                    <div>SubTotal: $<span id="booking_hotel_price"></span></div>
+                    <div>Discount: -$<span id="booking_discount"></span></div>
+                    <div>Taxes: $<span id="booking_tax"></span>(7.5%)</div>
+                    <div>Total: $<span id="booking_final_price"></span></div>
                     <div style='margin-top:20px'>
                         <button class='btn-confirm-booking btn btn-primary' id="add-guestInfo">Add GuestInfo</button>
                         <button class='btn btn-primary' id="edit-hotelInfo">Edit</button>

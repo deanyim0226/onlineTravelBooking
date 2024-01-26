@@ -15,4 +15,10 @@ public class BookingMicroserviceApplication {
 
     Authorization ->  role purpose
      */
+
+
+    /*
+    Booking send an email to register
+    send invoice pdf to users
+     */
 }

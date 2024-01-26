@@ -1,9 +1,12 @@
 package com.example.bookingmicroservice.controller;
 
 import com.example.bookingmicroservice.domain.Booking;
+import com.example.bookingmicroservice.domain.Guest;
 import com.example.bookingmicroservice.service.BookingService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+
+import java.time.LocalDate;
 
 @RestController
 public class BookingController {

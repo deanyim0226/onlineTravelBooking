@@ -14,6 +14,8 @@ public class BookingClient {
 
     public JsonNode saveBooking(JsonNode jsonNode){
 
+        System.out.println("calling saving booking from clinet");
+
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
         //need header to set content type
@@ -28,6 +30,7 @@ public class BookingClient {
 
         JsonNode booking = mapper.convertValue(obj,JsonNode.class);
 
+        System.out.println(booking);
         return booking;
 
     }
