@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
+import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
 @RestController
@@ -31,6 +32,33 @@ public class BookingController {
         });
 
         return bookingService.saveBooking(booking);
+    }
+
+    @PutMapping(value = "/updateBooking/{bookingId}")
+    public void updateBooking(@PathVariable Integer bookingId){
+        System.out.println("update booking");
+        bookingService.cancelBooking(bookingId);
+    }
+
+    @GetMapping(value = "/getAllBookings")
+    public List<Booking> getAll(){
+        bookingService.updateAll();
+        return bookingService.findAll();
+    }
+
+    @GetMapping(value = "/getUpcomingBookings/{userEmail}")
+    public List<Booking> getUpcomingBookings(@PathVariable String userEmail){
+        return bookingService.findUpcomingBookings(userEmail);
+    }
+
+    @GetMapping(value = "/getCompletedBookings/{userEmail}")
+    public List<Booking> getCompletedBookings(@PathVariable String userEmail){
+        return bookingService.findCompletedBookings(userEmail);
+    }
+
+    @GetMapping(value = "/getCanceledBookings/{userEmail}")
+    public List<Booking> getCanceledBookings(@PathVariable String userEmail){
+        return  bookingService.findCanceledBookings(userEmail);
     }
 
 }

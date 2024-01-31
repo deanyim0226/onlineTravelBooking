@@ -9,6 +9,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 
+import java.util.HashMap;
+import java.util.Map;
+
 @Component
 public class BookingClient {
 
@@ -33,5 +36,71 @@ public class BookingClient {
         System.out.println(booking);
         return booking;
 
+    }
+
+    public JsonNode getAllBookings(){
+
+        RestTemplate restTemplate = new RestTemplate();
+        ResponseEntity<Object> responseEntity = restTemplate.getForEntity("http://localhost:8181/getAllBookings",Object.class);
+
+        Object objects = responseEntity.getBody();
+        ObjectMapper mapper = new ObjectMapper();
+        JsonNode bookings = mapper.convertValue(objects,JsonNode.class);
+
+        System.out.println(bookings.toString());
+        return  bookings;
+    }
+
+    public JsonNode searchBookingById(int bookingId){
+
+        RestTemplate restTemplate = new RestTemplate();
+        ResponseEntity<Object> responseEntity = restTemplate.getForEntity("http://localhost:8181/searchBookingById/"+ bookingId, Object.class);
+
+        Object object = responseEntity.getBody();
+        ObjectMapper mapper = new ObjectMapper();
+        JsonNode booking = mapper.convertValue(object, JsonNode.class);
+
+        return booking;
+    }
+
+    public JsonNode getCompletedBookings(String userEmail){
+        RestTemplate restTemplate = new RestTemplate();
+        ResponseEntity<Object> responseEntity = restTemplate.getForEntity("http://localhost:8181/getCompletedBookings/"+userEmail,Object.class);
+
+        Object objects = responseEntity.getBody();
+        ObjectMapper mapper = new ObjectMapper();
+
+        JsonNode completedBookings = mapper.convertValue(objects,JsonNode.class);
+        return completedBookings;
+    }
+
+    public JsonNode getCanceledBookings(String userEmail){
+        RestTemplate restTemplate = new RestTemplate();
+        ResponseEntity<Object> responseEntity = restTemplate.getForEntity("http://localhost:8181/getCanceledBookings/"+userEmail, Object.class);
+
+        Object objects = responseEntity.getBody();
+        ObjectMapper mapper =new ObjectMapper();
+
+        JsonNode canceledBookings =  mapper.convertValue(objects,JsonNode.class);
+        return canceledBookings;
+    }
+
+    public JsonNode getUpcomingBookings(String userEmail){
+
+        RestTemplate restTemplate = new RestTemplate(); //IS SYNCHRONOUS REST CLIENT PROVIDED BY THE CORE SPRING FRAMEWORK
+        ResponseEntity<Object> responseEntity = restTemplate.getForEntity("http://localhost:8181/getUpcomingBookings/"+userEmail, Object.class);
+        //Get consumes REST API's GET mapping response and returns domain object
+
+        Object upcomingBookings = responseEntity.getBody();
+        ObjectMapper mapper = new ObjectMapper();
+
+        JsonNode jsonUpcomingBookings = mapper.convertValue(upcomingBookings, JsonNode.class);
+        return jsonUpcomingBookings;
+    }
+
+    public void updateBookingToCancel(int bookingId){
+
+        RestTemplate restTemplate = new RestTemplate();
+        restTemplate.put("http://localhost:8181/updateBooking/"+bookingId,Object.class);
     }
 }

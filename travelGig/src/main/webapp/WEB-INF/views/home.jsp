@@ -1,4 +1,6 @@
 <%@ taglib prefix="s" uri="http://www.springframework.org/security/tags" %>
+<%@taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
+<%@taglib uri="http://www.springframework.org/tags/form" prefix="f"%>
 <!DOCTYPE html>
 <html>
 <head>
@@ -307,12 +309,37 @@
     </script>
 </head>
 <body>
+<header>
+
+    <nav class="navbar bg-dark border-bottom border-body" data-bs-theme="dark">
+
+        <a class="btn btn-dark dropdown"   href="home"  >HOME</a>
+
+        <ul class="nav justify-content-end">
+            <s:authorize access="isAuthenticated()">
+            <li class = "nav-item"><a class="btn btn-dark dropdown"  href="userForm" >USER</a></li>
+            <s:authorize access="hasAuthority('Admin')">
+                <li class = "nav-item"><a class="btn btn-dark dropdown"  href="role" >ROLE</a></li>
+            </s:authorize>
+                <li class = "nav-item"><a class="btn btn-dark dropdown"   href="reservation">RESERVATION </a></li>
+
+                <li class = "nav-item"><a class="btn btn-dark dropdown"  href="/logout">LOGOUT</a></li>
+            </s:authorize>
+
+            <c:if test="${isLoggin}">
+                <li class = "nav-item"><a class="btn btn-dark dropdown"  href="/login">LOGIN</a></li>
+            </c:if>
+
+        </ul>
+
+    </nav>
+
+</header>
 <div class="container" style="margin-left:100px">
     <h1>Welcome to Travel Gig</h1>
     <h2>Search your desired hotel</h2>
 
     <%
-
         Object user = request.getAttribute("user");
     %>
 
@@ -321,6 +348,7 @@
         <br> User: <s:authentication property="principal.username"/>
         <li class = "nav-item"><a class="btn btn-dark dropdown"  href="/logout">LOGOUT</a></li>
     </s:authorize>
+
 </div>
 
 <div class="container border rounded" style="margin:auto;padding:50px;margin-top:50px;margin-bottom:50px">

@@ -54,25 +54,72 @@ public class InvoiceService {
 
         cell = new PdfPCell(new Phrase("Invoice Number", regularFont));
         table.addCell(cell);
-
         cell = new PdfPCell(new Phrase(String.valueOf(booking.getBookingId()),regularFont));
         table.addCell(cell);
 
         cell = new PdfPCell(new Phrase("Invoice Date", regularFont));
         table.addCell(cell);
-
         cell = new PdfPCell(new Phrase(LocalDate.now().toString(),regularFont));
         table.addCell(cell);
 
         cell = new PdfPCell(new Phrase("Customer Name", regularFont));
         table.addCell(cell);
-
         cell = new PdfPCell(new Phrase(booking.getUserName(),regularFont));
+        table.addCell(cell);
+
+        cell = new PdfPCell(new Phrase("Customer Mobile", regularFont));
+        table.addCell(cell);
+        cell = new PdfPCell(new Phrase(booking.getCustomerMobile(),regularFont));
+        table.addCell(cell);
+
+        cell = new PdfPCell(new Phrase("Booking ID", regularFont));
+        table.addCell(cell);
+        cell = new PdfPCell(new Phrase(String.valueOf(booking.getBookingId()),regularFont));
+        table.addCell(cell);
+
+        cell = new PdfPCell(new Phrase("Hotel", regularFont));
+        table.addCell(cell);
+        cell = new PdfPCell(new Phrase(booking.getHotelName(),regularFont));
+        table.addCell(cell);
+
+        cell = new PdfPCell(new Phrase("Check-In Date", regularFont));
+        table.addCell(cell);
+        cell = new PdfPCell(new Phrase(String.valueOf(booking.getCheckInDate()),regularFont));
+        table.addCell(cell);
+
+        cell = new PdfPCell(new Phrase("Check-out Date", regularFont));
+        table.addCell(cell);
+        cell = new PdfPCell(new Phrase(String.valueOf(booking.getCheckOutDate()),regularFont));
+        table.addCell(cell);
+
+        cell = new PdfPCell(new Phrase("No. of Rooms", regularFont));
+        table.addCell(cell);
+        cell = new PdfPCell(new Phrase(String.valueOf(booking.getNoRooms()),regularFont));
+        table.addCell(cell);
+
+        cell = new PdfPCell(new Phrase("Price per Room", regularFont));
+        table.addCell(cell);
+        cell = new PdfPCell(new Phrase("$" + String.valueOf(booking.getPrice()),regularFont));
+        table.addCell(cell);
+
+        cell = new PdfPCell(new Phrase("Discount", regularFont));
+        table.addCell(cell);
+        cell = new PdfPCell(new Phrase("$" + String.valueOf(booking.getDiscount()),regularFont));
+        table.addCell(cell);
+
+        cell = new PdfPCell(new Phrase("Tax rate", regularFont));
+        table.addCell(cell);
+        cell = new PdfPCell(new Phrase(String.valueOf(booking.getTaxRateInPercent() *100) + "%",regularFont));
         table.addCell(cell);
 
         document.add(table);
 
         document.add(new Paragraph("\n"));
+
+        Paragraph totalSavings = new Paragraph("Total Amount: $" + booking.getFinalCharges(),headerFont);
+        totalSavings.setAlignment(Element.ALIGN_RIGHT);
+
+        document.add(totalSavings);
 
 
     }

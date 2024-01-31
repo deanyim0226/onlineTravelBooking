@@ -28,4 +28,13 @@ public interface BookingService {
     public Booking findById(Integer bookingId);
     public List<Booking> findAll();
 
+    public void updateAll();
+
+    public void cancelBooking(Integer bookingId);
+
+    public List<Booking> findUpcomingBookings(String userEmail);
+    public List<Booking> findCompletedBookings(String userEmail);
+    public List<Booking> findCanceledBookings(String userEmail);
+
+
 }

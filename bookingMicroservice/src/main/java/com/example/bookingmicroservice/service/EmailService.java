@@ -52,12 +52,13 @@ public class EmailService {
             javaMailSender.send(message);
 
         }catch (Exception e){
-
+            System.out.println("error occurs " + e.getMessage() );
+            e.printStackTrace();
         }
     }
 
     public String getEmailBody(Booking booking){
-
+        System.out.println("get email body is called");
         StringBuilder guestTable = new StringBuilder();
 
         for(Guest guest : booking.getGuests()){
@@ -68,17 +69,81 @@ public class EmailService {
                     <td>%s</td>
                     <td>%s</td>
                 </tr>
-                """.formatted(guest.getFirstName(),
-                    guest.getLastName(),
-                    guest.getGender(),
-                    guest.getAge());
-        
+                """.formatted(
+                        guest.getFirstName(),
+                        guest.getLastName(),
+                        guest.getGender(),
+                        guest.getAge()
+            );
+
             guestTable.append(guestRow);
         }
 
 
+        String htmlTemplate = """
+                <!DOCTYPE html>
+                <html>
+                    <head>Hotel Confirmation</head>
+                    <body>
+                        <h1> Your Stay at %s is confirmed! </h1>
+                        <p> Check-in Date : %s </p>
+                        <p> Check-out Date : %s </p>
+                        <p> Booked on : %s </p>
+                        <p> Status : %s </p>
+                        
+                        <h2> Guest Information </h2>
+                        <table>
+                          
+                            <tr>
+                                <th>Guest Details</th>
+                            </tr>
+                            <tr>
+                                <th> First Name </th>
+                                <th> Last Name </th>
+                                <th> Gender </th>
+                                <th> Age </th>
+                            </tr>
+                         
+                            <tr>
+                                 <td>%s</td>
+                            </tr>
 
-        return guestTable.toString();
+                        </table>
+                        <hr/>
+                        <table>
+                            <tr>
+                                <th> Booking Details </th>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <p> Room Type: %s </p>
+                                    <p> No. of Rooms: %s </p>
+                                    <p> Price per Room: $%.2f </p>
+                                    <p> Discount: $%.2f </p>
+                                    <p> Tax Rate: %.2f%% </p>
+                                    <p> Final Charges: $%.2f </p>
+                   
+                                </td>
+                            </tr>
+                        </table>
+                    </body>
+                </html>
+             """.formatted(
+                     booking.getHotelName(),
+                booking.getCheckInDate(),
+                booking.getCheckOutDate(),
+                booking.getBookedOnDate(),
+                booking.getStatus(),
+                guestTable.toString(),
+                booking.getRoomType(),
+                booking.getNoRooms(),
+                booking.getPrice(),
+                booking.getDiscount(),
+                booking.getTaxRateInPercent() * 100,
+                booking.getFinalCharges()
+        );
+
+        return htmlTemplate;
 
     }
 

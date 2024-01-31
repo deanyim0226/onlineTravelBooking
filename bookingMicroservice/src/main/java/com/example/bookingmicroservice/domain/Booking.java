@@ -33,6 +33,16 @@ public class Booking {
 
     private String status; 			// CANCELED, COMPLETED (can be simply compared), UPCOMING
 //checkin date is less than completed
+    /*
+    when user make a reservation the booking status is upcoming
+
+    is user able to cancel the booking?
+
+    checkindate is greater than current date
+
+     */
+
+
     private float  price;       //based on room? hotel room
     private float  discount;    //room hotel room
     private String customerMobile;  // USE this to identify the customer who booked
