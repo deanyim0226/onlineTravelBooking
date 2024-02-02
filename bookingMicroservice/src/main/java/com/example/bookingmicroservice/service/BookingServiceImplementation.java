@@ -61,7 +61,7 @@ public class BookingServiceImplementation implements BookingService{
 
 
     @Override
-    public List<Booking> findUpcomingBookings(String userEmail) {
+    public List<Booking> findUpcomingBookings(String userEmail, Boolean isAdmin) {
         updateAll();
 
         List<Booking> bookingList = bookingRepository.findAll();
@@ -70,18 +70,25 @@ public class BookingServiceImplementation implements BookingService{
         for(Booking booking : bookingList){
 
             //authentication
-            if(booking.getUserEmail().equals(userEmail)){
+            if(isAdmin){
                 if(booking.getStatus().equals("UPCOMING")){
                     upcomingBookings.add(booking);
                 }
+            }else{
+                if(booking.getUserEmail().equals(userEmail)){
+                    if(booking.getStatus().equals("UPCOMING")){
+                        upcomingBookings.add(booking);
+                    }
+                }
             }
+
 
         }
         return upcomingBookings;
     }
 
     @Override
-    public List<Booking> findCompletedBookings(String userEmail) {
+    public List<Booking> findCompletedBookings(String userEmail, Boolean isAdmin) {
         updateAll();
 
         List<Booking> bookingList = bookingRepository.findAll();
@@ -89,18 +96,27 @@ public class BookingServiceImplementation implements BookingService{
 
         for(Booking booking : bookingList){
 
-            if(booking.getUserEmail().equals(userEmail)){
+            if(isAdmin){
+
                 if(booking.getStatus().equals("COMPLETED")){
                     completedBookings.add(booking);
                 }
+
+            }else{
+                if(booking.getUserEmail().equals(userEmail)){
+                    if(booking.getStatus().equals("COMPLETED")){
+                        completedBookings.add(booking);
+                    }
+                }
             }
+
 
         }
         return completedBookings;
     }
 
     @Override
-    public List<Booking> findCanceledBookings(String userEmail) {
+    public List<Booking> findCanceledBookings(String userEmail, Boolean isAdmin) {
         updateAll();
 
         List<Booking> bookingList = bookingRepository.findAll();
@@ -108,11 +124,19 @@ public class BookingServiceImplementation implements BookingService{
 
         for(Booking booking : bookingList){
 
-            if(booking.getUserEmail().equals(userEmail)){
+            if(isAdmin){
+
                 if(booking.getStatus().equals("CANCELED")){
                     canceledBookings.add(booking);
                 }
+            }else{
+                if(booking.getUserEmail().equals(userEmail)){
+                    if(booking.getStatus().equals("CANCELED")){
+                        canceledBookings.add(booking);
+                    }
+                }
             }
+
         }
         return canceledBookings;
     }

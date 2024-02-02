@@ -1,12 +1,15 @@
 package com.example.travelgig.service;
 
+import com.example.travelgig.domain.Role;
 import com.example.travelgig.domain.User;
+import com.example.travelgig.repository.RoleRepository;
 import com.example.travelgig.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Set;
 
 @Service
 public class UserServiceImplementation implements UserService{
@@ -17,6 +20,8 @@ public class UserServiceImplementation implements UserService{
     @Autowired
     UserRepository userRepository;
 
+    @Autowired
+    RoleRepository roleRepository;
 
 
     @Override
@@ -45,5 +50,27 @@ public class UserServiceImplementation implements UserService{
     @Override
     public User findByUserName(String userName) {
         return userRepository.findByUserName(userName);
+    }
+
+    @Override
+    public User saveFromRegister(User user) {
+        List<User> users = userRepository.findAll();
+        Role defaultRole = roleRepository.findById(Long.valueOf(2)).orElse(null);
+        user.setRoles(Set.of(defaultRole));
+        user.setUserId(Long.valueOf(users.size()+1));
+        String encryptedPassword = encoder.encode(user.getUserPassword());
+        user.setUserPassword(encryptedPassword);
+        return userRepository.save(user);
+    }
+
+    @Override
+    public boolean isAmdin(User user) {
+        Role adminRole = roleRepository.findById(Long.valueOf(1)).orElse(null);
+
+        if(user.getRoles().contains(adminRole)){
+            return true;
+        }
+
+        return false;
     }
 }

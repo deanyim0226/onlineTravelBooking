@@ -17,32 +17,31 @@ import org.springframework.stereotype.Service;
 public class EmailService {
 
     @Autowired
-    private JavaMailSender javaMailSender;
+    private JavaMailSender javaMailSender; //uses the JavaMail API to send email
 
     @Autowired
     private InvoiceService invoiceService;
 
     @Async
-    public void sendBookingConfirmation(Booking booking){
+    public void sendBookingConfirmation(Booking booking, String hotelName){
         try{
-            MimeMessage message = javaMailSender.createMimeMessage();
+            MimeMessage message = javaMailSender.createMimeMessage(); // allow to set email contents as HTML with setContent
 
-            MimeMessageHelper helper = new MimeMessageHelper(message);
+            MimeMessageHelper helper = new MimeMessageHelper(message); // allow to set the recipient, subject, and body of the email
 
-            byte[] invoiceBytes = invoiceService.generateInvoice(booking);
+            byte[] invoiceBytes = invoiceService.generateInvoice(booking, hotelName); // generate pdf file and store it
 
-            MimeBodyPart attachmentPart = new MimeBodyPart();
+            MimeBodyPart attachmentPart = new MimeBodyPart(); // to attach file
             attachmentPart.setContent(invoiceBytes, "application/pdf");
             attachmentPart.setFileName("invoice.pdf");
 
-            MimeBodyPart textPart = new MimeBodyPart();
+            MimeBodyPart textPart = new MimeBodyPart(); // to set content of body
+            textPart.setContent(this.getEmailBody(booking,hotelName), "text/html;charset=UTF-8");
 
-            textPart.setContent(this.getEmailBody(booking), "text/html;charset=UTF-8");
             //set content type to HTML
-
             helper.setTo(booking.getUserEmail());
             helper.setSubject("Time to Unwind: Your Hotel Stay is Official!");
-            helper.setText(this.getEmailBody(booking),true);
+            helper.setText(this.getEmailBody(booking, hotelName),true);
 
             Multipart multipart = new MimeMultipart();
             multipart.addBodyPart(attachmentPart);
@@ -57,7 +56,7 @@ public class EmailService {
         }
     }
 
-    public String getEmailBody(Booking booking){
+    public String getEmailBody(Booking booking, String hotelName){
         System.out.println("get email body is called");
         StringBuilder guestTable = new StringBuilder();
 
@@ -129,7 +128,7 @@ public class EmailService {
                     </body>
                 </html>
              """.formatted(
-                     booking.getHotelName(),
+                hotelName,
                 booking.getCheckInDate(),
                 booking.getCheckOutDate(),
                 booking.getBookedOnDate(),

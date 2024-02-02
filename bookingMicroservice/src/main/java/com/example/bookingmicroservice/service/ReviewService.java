@@ -10,4 +10,6 @@ public interface ReviewService {
     public Review saveReview(Review review);
     public Review findById(Integer reviewId);
     public List<Review> findAll();
+
+    public List<Review> findReviewByHotelId(Integer hotelId);
 }

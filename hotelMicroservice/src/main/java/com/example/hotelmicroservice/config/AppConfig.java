@@ -21,8 +21,8 @@ public class AppConfig {
 
         dataSource.setUrl("jdbc:oracle:thin:@localhost:1521:xe");
         dataSource.setDriverClassName("oracle.jdbc.OracleDriver");
-        dataSource.setUsername("daniel");
-        dataSource.setPassword("1234");
+        dataSource.setUsername("");
+        dataSource.setPassword("");
 
         return dataSource;
     }
@@ -37,6 +37,7 @@ public class AppConfig {
         return viewResolver;
     }
 
+    //operates at a higher level of abstraction, providing a standardized way to set up a JPA
     @Bean
     public LocalContainerEntityManagerFactoryBean entityManagerFactory() {
         LocalContainerEntityManagerFactoryBean factory = new LocalContainerEntityManagerFactoryBean();

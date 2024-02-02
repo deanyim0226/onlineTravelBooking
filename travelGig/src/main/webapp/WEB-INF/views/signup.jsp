@@ -32,7 +32,7 @@
             bottom:0;
 
             width: 500px;
-            height: 535px;
+            height: 475px;
 
             padding: 2em;
             margin-top: 3.5em;
@@ -87,7 +87,7 @@
         </tr>
     </table>
 
-        <f:form modelAttribute="user" action="saveUser" method="POST">
+        <f:form modelAttribute="user" action="saveUserFromRegister" method="POST">
 
             <label>
                 <b>Email</b>

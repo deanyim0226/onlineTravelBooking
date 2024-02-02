@@ -15,11 +15,20 @@
     <script>
         $(document).ready(function(){
 
+            $("#upcoming").css("color","black")
+            $("#completed").css("color","black")
+            $("#canceled").css("color","black")
+
             $("#canceled-body").hide()
             $("#upcoming-body").hide()
             $("#completed-body").hide()
 
             $("#upcoming").click(function(){
+
+                $(this).parent().css("background-color","orange")
+                $("#completed").parent().css("background-color", "white")
+                $("#canceled").parent().css("background-color", "white")
+
                 let upcomingBookings = []
 
                 $("#upcoming-body").show()
@@ -52,8 +61,8 @@
                         success:function(response){
 
                             $("#upcoming-table").append(
-                                "<tr><td>" + response.hotelName +"</td><td>"+ booking.roomType  +"</td><td>"+ booking.checkInDate +"</td><td>"+ booking.checkOutDate
-                                +"</td><td>$"+ booking.finalCharges +"</td><td>"+ booking.status +"</td><td><button class='cancel' data-bookingId='"+booking.bookingId+"'>Cancel</button></td></tr>"
+                                "<tr><td>" + response.hotelName +"</td><td>"+ booking.roomType  +"</td><td>"+ booking.userName  +"</td><td>"+ booking.checkInDate +"</td><td>"+ booking.checkOutDate
+                                +"</td><td>$"+ booking.finalCharges +"</td><td>"+ booking.status +"</td><td><button class='cancel btn btn-danger' data-bookingId='"+booking.bookingId+"'>Cancel</button></td></tr>"
                             )
 
                         },
@@ -65,6 +74,7 @@
 
                 $(".cancel").each(function(index,element){
                     $(element).click(function(){
+
                         let hotelBookingId = $(element).attr("data-bookingId")
                         //open modal to confirm the final decision
 
@@ -88,6 +98,10 @@
             })
 
             $("#canceled").click(function(){
+                $(this).parent().css("background-color","orange")
+                $("#completed").parent().css("background-color", "white")
+                $("#upcoming").parent().css("background-color", "white")
+
                 $("#canceled-body").show()
                 $("#upcoming-body").hide()
                 $("#completed-body").hide()
@@ -120,7 +134,7 @@
                         success:function(response){
 
                             $("#canceled-table").append(
-                                "<tr><td>" + response.hotelName +"</td><td>"+ booking.roomType  +"</td><td>"+ booking.checkInDate +"</td><td>"+ booking.checkOutDate
+                                "<tr><td>" + response.hotelName +"</td><td>"+ booking.roomType  +"</td><td>"+ booking.userName  +"</td><td>"+ booking.checkInDate +"</td><td>"+ booking.checkOutDate
                                 +"</td><td>$"+ booking.finalCharges +"</td><td>"+ booking.status +"</td></tr>"
                             )
 
@@ -133,6 +147,10 @@
             })
 
             $("#completed").click(function(){
+                $(this).parent().css("background-color","orange")
+                $("#canceled").parent().css("background-color", "white")
+                $("#upcoming").parent().css("background-color", "white")
+
                 $("#completed-body").show()
                 $("#upcoming-body").hide()
                 $("#canceled-body").hide()
@@ -165,8 +183,8 @@
                         success:function(response){
 
                             $("#completed-table").append(
-                                "<tr><td>" + response.hotelName +"</td><td>"+ booking.roomType  +"</td><td>"+ booking.checkInDate +"</td><td>"+ booking.checkOutDate
-                                +"</td><td>$"+ booking.finalCharges +"</td><td>"+ booking.status +"</td><td><button class='review' data-bookingId='"+booking.bookingId+"'>Review</button></td></tr>"
+                                "<tr><td>" + response.hotelName +"</td><td>"+ booking.roomType  +"</td><td>"+ booking.userName  +"</td><td>"+ booking.checkInDate +"</td><td>"+ booking.checkOutDate
+                                +"</td><td>$"+ booking.finalCharges +"</td><td>"+ booking.status +"</td><td><button class='review btn btn-primary' data-hotelname='"+response.hotelName+"' data-bookingId='"+booking.bookingId+"'>Review</button></td></tr>"
                             )
 
                         },
@@ -178,9 +196,14 @@
 
                 $(".review").each(function(index,element){
                     $(element).click(function(){
-                        alert($(element).attr("data-bookingId"))
 
-                        $("#myModal").toggle()
+                        let bookingId = $(element).attr("data-bookingId")
+                        let hotelName = $(element).attr("data-hotelname")
+
+                        $("#modal_bookingId").val(bookingId);
+                        $("#modal_hotelName").val(hotelName);
+
+                        $("#myModal").modal('show')
                     })
                 })
 
@@ -188,7 +211,51 @@
             })
 
             $("#submitReview").click(function(){
-                //make an api call to save review in the database
+
+                let bookingId = $("#modal_bookingId").val()
+
+                let text = $("#modal_text").val()
+                let serviceRating = $("#modal_service").val()
+                let amenitiesRating= $("#modal_amenity").val()
+                let bookingProcessRating = $("#modal_process").val()
+                let wholeExpRating = $("#modal_experience").val()
+
+                let sumOfRatings = parseInt(serviceRating) + parseInt(amenitiesRating) + parseInt(bookingProcessRating) + parseInt(wholeExpRating);
+                let overallRating = sumOfRatings/4;
+
+                let booking = {}
+
+                $.ajax({
+                    type: "GET",
+                    url:"http://localhost:8282/getBooking/"+bookingId,
+                    async: false,
+                    success:function(response){
+                        booking = response;
+                    },
+                    error:function(err){
+                        alert("error while retrieving booking information" + err)
+                    }
+                })
+
+                let review = { booking, text,serviceRating,amenitiesRating,bookingProcessRating,wholeExpRating,overallRating }
+
+                $.ajax({
+                    type:"POST",
+                    url:"http://localhost:8282/saveReview",
+                    dataType:"json",
+                    contentType:"application/json",
+                    data: JSON.stringify(review),
+                    async: false,
+                    success: function(response){
+                        alert("successfully left the review")
+                        window.location.replace("home")
+                    },
+                    error: function(err){
+                        alert("you have already left the review " + err)
+                    }
+
+                })
+
             })
 
         })
@@ -200,8 +267,9 @@
         <a class="btn btn-dark dropdown"   href="home"  >HOME</a>
         <ul class="nav justify-content-end">
             <s:authorize access="isAuthenticated()">
-                <li class = "nav-item"><a class="btn btn-dark dropdown"  href="userForm" >USER</a></li>
+
                 <s:authorize access="hasAuthority('Admin')">
+                    <li class = "nav-item"><a class="btn btn-dark dropdown"  href="user" >USER</a></li>
                     <li class = "nav-item"><a class="btn btn-dark dropdown"  href="role" >ROLE</a></li>
                 </s:authorize>
                 <li class = "nav-item"><a class="btn btn-dark dropdown"   href="reservation">RESERVATION </a></li>
@@ -217,20 +285,25 @@
     </nav>
 </header>
 <div align="center">
-    <table border="1">
-        <th>
-            <tr><a id="upcoming" href="#">UPCOMING</a> | </tr>
-            <tr><a id="completed" href="#">COMPLETED</a> | </tr>
-            <tr><a id="canceled" href="#">CANCELED</a></tr>
-        </th>
-    </table>
+    <div class="row">
+        <div class="col">
+            <a id="upcoming" href="#" style="font-size:25px ">UPCOMING</a>
+        </div>
+        <div class="col">
+            <a id="completed" href="#" style="font-size:25px ">COMPLETED</a>
+        </div>
+        <div class="col">
+            <a id="canceled" href="#" style="font-size:25px ">CANCELED</a>
+        </div>
+    </div>
 </div>
 <div id="upcoming-body" align="center">
-    <h1>UPCOMING</h1>
-    <table id="upcoming-table">
+
+    <table class="table table-light table-striped-column" id="upcoming-table">
         <tr>
             <th>HOTEL NAME</th>
             <th>ROOM TYPE</th>
+            <th>USER</th>
             <th>CheckInDate</th>
             <th>CheckOutDate</th>
             <th>Final Price</th>
@@ -242,11 +315,12 @@
 </div>
 
 <div id="completed-body" align="center">
-    <h1>COMPLETED</h1>
-    <table id="completed-table">
+
+    <table class="table table-light table-striped-column" id="completed-table">
         <tr>
             <th>HOTEL NAME</th>
             <th>ROOM TYPE</th>
+            <th>USER</th>
             <th>CheckInDate</th>
             <th>CheckOutDate</th>
             <th>Final Price</th>
@@ -257,11 +331,12 @@
 </div>
 
 <div id="canceled-body" align="center">
-    <h1>CANCELED</h1>
-    <table id="canceled-table">
+
+    <table class="table table-light table-striped-column" id="canceled-table">
         <tr>
             <th>HOTEL NAME</th>
             <th>ROOM TYPE</th>
+            <th>USER</th>
             <th>CheckInDate</th>
             <th>CheckOutDate</th>
             <th>Final Price</th>
@@ -284,15 +359,13 @@
             <div class="modal-body">
                 <div class="col">
                     <input class="form-control" type="hidden" id="modal_hotelId"/>
+                    <input class="form-control" type="hidden" id="modal_bookingId"/>
                     Hotel Name: <input readonly="true" class="form-control" type="text" id="modal_hotelName"/>
-                    Comment: <input class="form-control" type="text" id="modal_text"/>
-                    Service: <input class="form-control" type="number" id="modal_service"/>
-                    Amenities: <input class="form-control" type="number" id="modal_amenity"/>
-                    <input id="input-id" name="input-name" type="number" class="rating" min=1 max=5 step=0.5 data-size="lg" value='0'>
-
-                    Booking-Process: <input class="form-control" type="number" id="modal_process"/>
-                    Whole Experience: <input class="form-control" type="number" id="modal_experience"/>
-                    OverallRating: <input class="form-control" type="number" id="modal_overal"/>
+                    Rating Service 1 - 5 <input class="form-control"  type="number" id="modal_service"/>
+                    Rating Amenities 1 - 5 <input class="form-control" type="number" id="modal_amenity"/>
+                    Rating Booking Process 1 - 5 <input class="form-control" type="number" id="modal_process"/>
+                    Rating Whole Experience 1 - 5 <input class="form-control" type="number" id="modal_experience"/>
+                    Comment: <input class="form-control" type="textarea" id="modal_text"/>
                     <input style="margin-top:25px" class="btn btn-searchHotelRooms form-control btn-primary" type="button" id="submitReview" value="Submit"/>
                 </div>
             </div>

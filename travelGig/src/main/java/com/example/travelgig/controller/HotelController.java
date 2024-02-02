@@ -17,7 +17,6 @@ public class HotelController {
     @RequestMapping(value = "/searchHotel/{searchString}", method = RequestMethod.GET)
     public JsonNode searchHotel(@PathVariable String searchString){
 
-        System.out.println("hotel controller from brower is called");
         return hotelClient.searchHotel(searchString);
     }
 

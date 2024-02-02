@@ -10,19 +10,7 @@ import java.util.List;
 
 
 public interface BookingService {
-/*
-       RestTemplate restTemplate = new RestTemplate();
-        ResponseEntity<Object> responseEntity =
-                restTemplate.getForEntity("http://localhost:8383/searchHotel/" + searchString,Object.class);
 
-        Object objects = responseEntity.getBody();
-
-        ObjectMapper mapper = new ObjectMapper();
-        JsonNode hotels = mapper.convertValue(objects, JsonNode.class);
-
-        System.out.println(hotels.toString());
-        return hotels;
- */
 
     public Booking saveBooking(Booking booking);
     public Booking findById(Integer bookingId);
@@ -32,9 +20,9 @@ public interface BookingService {
 
     public void cancelBooking(Integer bookingId);
 
-    public List<Booking> findUpcomingBookings(String userEmail);
-    public List<Booking> findCompletedBookings(String userEmail);
-    public List<Booking> findCanceledBookings(String userEmail);
+    public List<Booking> findUpcomingBookings(String userEmail, Boolean isAdmin);
+    public List<Booking> findCompletedBookings(String userEmail, Boolean isAdmin);
+    public List<Booking> findCanceledBookings(String userEmail, Boolean isAdmin);
 
 
 }

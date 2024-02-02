@@ -15,15 +15,15 @@ import java.time.LocalDate;
 public class InvoiceService {
 
 
-    public byte[] generateInvoice(Booking booking){
+    public byte[] generateInvoice(Booking booking, String hotelName){
 
-        Document document = new Document();
-        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+        Document document = new Document(); // create new pdf document
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream(); // to store the content of the PDF document in memory.
 
         try{
-            PdfWriter.getInstance(document,outputStream);
+            PdfWriter.getInstance(document,outputStream); // pdfwriter is responsible for writing the content to the PDF document.
             document.open();;
-            addContent(document,booking);
+            addContent(document,booking, hotelName);
             document.close();
 
             return outputStream.toByteArray();
@@ -33,7 +33,7 @@ public class InvoiceService {
 
     }
 
-    private void addContent(Document document, Booking booking) throws DocumentException{
+    private void addContent(Document document, Booking booking, String hotelName) throws DocumentException{
 
         Font headerFont = new Font(Font.FontFamily.TIMES_ROMAN,18,Font.BOLD);
         Font regularFont = new Font(Font.FontFamily.TIMES_ROMAN, 12);
@@ -42,8 +42,6 @@ public class InvoiceService {
         header.setAlignment(Element.ALIGN_CENTER);
 
         document.add(header);
-
-
         document.add(new Paragraph("\n"));
 
         PdfPTable table = new PdfPTable(2);
@@ -72,14 +70,9 @@ public class InvoiceService {
         cell = new PdfPCell(new Phrase(booking.getCustomerMobile(),regularFont));
         table.addCell(cell);
 
-        cell = new PdfPCell(new Phrase("Booking ID", regularFont));
-        table.addCell(cell);
-        cell = new PdfPCell(new Phrase(String.valueOf(booking.getBookingId()),regularFont));
-        table.addCell(cell);
-
         cell = new PdfPCell(new Phrase("Hotel", regularFont));
         table.addCell(cell);
-        cell = new PdfPCell(new Phrase(booking.getHotelName(),regularFont));
+        cell = new PdfPCell(new Phrase(hotelName,regularFont));
         table.addCell(cell);
 
         cell = new PdfPCell(new Phrase("Check-In Date", regularFont));

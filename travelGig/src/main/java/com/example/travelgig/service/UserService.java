@@ -13,4 +13,7 @@ public interface UserService {
     public User findByUserId(long userId);
     public User findByUserName(String userName);
 
+    public User saveFromRegister(User user);
+
+    public boolean isAmdin(User user);
 }

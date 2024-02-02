@@ -20,12 +20,17 @@ public class BookingController {
     @Autowired
     EmailService emailService;
 
-    @RequestMapping(value = "/saveBooking", method = RequestMethod.POST)
-    public Booking saveBooking(@RequestBody Booking booking){
+    @RequestMapping(value = "/getBooking/{bookingId}", method = RequestMethod.GET)
+    public Booking getBooking(@PathVariable Integer bookingId){
+
+        return bookingService.findById(bookingId);
+    }
+    @RequestMapping(value = "/saveBooking/{hotelName}", method = RequestMethod.POST)
+    public Booking saveBooking(@RequestBody Booking booking, @PathVariable String hotelName){
 
         CompletableFuture.runAsync(()->{
             try {
-                emailService.sendBookingConfirmation(booking);
+                emailService.sendBookingConfirmation(booking, hotelName);
             }catch (Exception e){
                 e.printStackTrace();
             }
@@ -46,19 +51,19 @@ public class BookingController {
         return bookingService.findAll();
     }
 
-    @GetMapping(value = "/getUpcomingBookings/{userEmail}")
-    public List<Booking> getUpcomingBookings(@PathVariable String userEmail){
-        return bookingService.findUpcomingBookings(userEmail);
+    @GetMapping(value = "/getUpcomingBookings/{userEmail}/{isAdmin}")
+    public List<Booking> getUpcomingBookings(@PathVariable String userEmail, @PathVariable Boolean isAdmin){
+        return bookingService.findUpcomingBookings(userEmail, isAdmin);
     }
 
-    @GetMapping(value = "/getCompletedBookings/{userEmail}")
-    public List<Booking> getCompletedBookings(@PathVariable String userEmail){
-        return bookingService.findCompletedBookings(userEmail);
+    @GetMapping(value = "/getCompletedBookings/{userEmail}/{isAdmin}")
+    public List<Booking> getCompletedBookings(@PathVariable String userEmail, @PathVariable Boolean isAdmin){
+        return bookingService.findCompletedBookings(userEmail, isAdmin);
     }
 
-    @GetMapping(value = "/getCanceledBookings/{userEmail}")
-    public List<Booking> getCanceledBookings(@PathVariable String userEmail){
-        return  bookingService.findCanceledBookings(userEmail);
+    @GetMapping(value = "/getCanceledBookings/{userEmail}/{isAdmin}")
+    public List<Booking> getCanceledBookings(@PathVariable String userEmail, @PathVariable Boolean isAdmin){
+        return  bookingService.findCanceledBookings(userEmail, isAdmin);
     }
 
 }

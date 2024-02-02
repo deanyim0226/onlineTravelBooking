@@ -19,17 +19,17 @@ public class BookingController {
     @Autowired
     UserService userService;
 
-    @RequestMapping(value = "/saveBooking", method = RequestMethod.POST)
-    public JsonNode saveBooking(@RequestBody JsonNode booking){
+    @RequestMapping(value = "/saveBooking/{hotelName}", method = RequestMethod.POST)
+    public JsonNode saveBooking(@RequestBody JsonNode booking, @PathVariable String hotelName){
 
-        return bookingClient.saveBooking(booking);
+        return bookingClient.saveBooking(booking, hotelName);
 
     }
 
-    @RequestMapping(value = "/searchBooking/{bookinglId}", method = RequestMethod.GET)
-    public JsonNode searchHotelById(@PathVariable int bookingId){
+    @RequestMapping(value = "/getBooking/{bookingId}", method = RequestMethod.GET)
+    public JsonNode getBooking(@PathVariable int bookingId){
 
-        return bookingClient.searchBookingById(bookingId);
+        return bookingClient.getBookingById(bookingId);
     }
     @RequestMapping(value = "/cancelBooking/{bookingId}", method = RequestMethod.PUT)
     public void updateBookingToCancel(@PathVariable int bookingId){
@@ -48,11 +48,9 @@ public class BookingController {
         }
         User currentUser = userService.findByUserName(principal.getName());
         String userEmail = currentUser.getEmail();
+        Boolean isAdmin = userService.isAmdin(currentUser);
 
-        System.out.println("current user is " + currentUser.getUserName() );
-        System.out.println("email is " + currentUser.getEmail() );
-
-        return bookingClient.getUpcomingBookings(userEmail);
+        return bookingClient.getUpcomingBookings(userEmail,isAdmin);
     }
 
     @RequestMapping(value = "/getCanceledBookings", method = RequestMethod.GET)
@@ -62,11 +60,10 @@ public class BookingController {
         }
         User currentUser = userService.findByUserName(principal.getName());
         String userEmail = currentUser.getEmail();
+        Boolean isAdmin = userService.isAmdin(currentUser);
 
-        System.out.println("current user is " + currentUser.getUserName() );
-        System.out.println("email is " + currentUser.getEmail() );
 
-        return bookingClient.getCanceledBookings(userEmail);
+        return bookingClient.getCanceledBookings(userEmail,isAdmin);
     }
 
     @RequestMapping(value = "/getCompletedBookings", method = RequestMethod.GET)
@@ -77,11 +74,9 @@ public class BookingController {
         }
         User currentUser = userService.findByUserName(principal.getName());
         String userEmail = currentUser.getEmail();
+        Boolean isAdmin = userService.isAmdin(currentUser);
 
-        System.out.println("current user is " + currentUser.getUserName() );
-        System.out.println("email is " + currentUser.getEmail() );
-
-        return bookingClient.getCompletedBookings(userEmail);
+        return bookingClient.getCompletedBookings(userEmail,isAdmin);
     }
 
     @GetMapping("/reservation")

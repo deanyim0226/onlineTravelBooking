@@ -23,8 +23,8 @@ public class AppConfig {
 
         DriverManagerDataSource dataSource = new DriverManagerDataSource();
         dataSource.setDriverClassName("oracle.jdbc.OracleDriver");
-        dataSource.setUsername("daniel");
-        dataSource.setPassword("1234");
+        dataSource.setUsername("");
+        dataSource.setPassword("");
         dataSource.setUrl("jdbc:oracle:thin:@localhost:1521:xe");
 
         return dataSource;

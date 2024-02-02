@@ -19,8 +19,8 @@ public class AppConfig {
 
         dataSource.setUrl("jdbc:oracle:thin:@localhost:1521:xe");
         dataSource.setDriverClassName("oracle.jdbc.OracleDriver");
-        dataSource.setUsername("daniel");
-        dataSource.setPassword("1234");
+        dataSource.setUsername("");
+        dataSource.setPassword("");
 
         return dataSource;
     }
@@ -34,7 +34,7 @@ public class AppConfig {
         factory.setJpaProperties(jpaProperties());
         factory.afterPropertiesSet();
 
-        return factory;
+        return factory; // configure JPA with hibernate as vendor
     }
 
     public Properties jpaProperties() {

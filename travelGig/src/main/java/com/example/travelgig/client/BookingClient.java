@@ -15,7 +15,7 @@ import java.util.Map;
 @Component
 public class BookingClient {
 
-    public JsonNode saveBooking(JsonNode jsonNode){
+    public JsonNode saveBooking(JsonNode jsonNode, String hotelName){
 
         System.out.println("calling saving booking from clinet");
 
@@ -26,10 +26,11 @@ public class BookingClient {
         HttpEntity<String> request = new HttpEntity<>(jsonNode.toString(),headers);
 
         RestTemplate restTemplate = new RestTemplate();
-        ResponseEntity<Object> responseEntity = restTemplate.postForEntity("http://localhost:8181/saveBooking",request,Object.class);
+        ResponseEntity<Object> responseEntity = restTemplate.postForEntity("http://localhost:8181/saveBooking/"+hotelName,request,Object.class);
 
         Object obj = responseEntity.getBody();
         ObjectMapper mapper = new ObjectMapper();
+        //ObjectMapper provides functionality for reading and writing JSON,
 
         JsonNode booking = mapper.convertValue(obj,JsonNode.class);
 
@@ -51,10 +52,10 @@ public class BookingClient {
         return  bookings;
     }
 
-    public JsonNode searchBookingById(int bookingId){
+    public JsonNode getBookingById(int bookingId){
 
         RestTemplate restTemplate = new RestTemplate();
-        ResponseEntity<Object> responseEntity = restTemplate.getForEntity("http://localhost:8181/searchBookingById/"+ bookingId, Object.class);
+        ResponseEntity<Object> responseEntity = restTemplate.getForEntity("http://localhost:8181/getBooking/"+ bookingId, Object.class);
 
         Object object = responseEntity.getBody();
         ObjectMapper mapper = new ObjectMapper();
@@ -63,9 +64,9 @@ public class BookingClient {
         return booking;
     }
 
-    public JsonNode getCompletedBookings(String userEmail){
+    public JsonNode getCompletedBookings(String userEmail, boolean isAdmin){
         RestTemplate restTemplate = new RestTemplate();
-        ResponseEntity<Object> responseEntity = restTemplate.getForEntity("http://localhost:8181/getCompletedBookings/"+userEmail,Object.class);
+        ResponseEntity<Object> responseEntity = restTemplate.getForEntity("http://localhost:8181/getCompletedBookings/"+userEmail+"/"+isAdmin,Object.class);
 
         Object objects = responseEntity.getBody();
         ObjectMapper mapper = new ObjectMapper();
@@ -74,9 +75,9 @@ public class BookingClient {
         return completedBookings;
     }
 
-    public JsonNode getCanceledBookings(String userEmail){
+    public JsonNode getCanceledBookings(String userEmail, boolean isAdmin){
         RestTemplate restTemplate = new RestTemplate();
-        ResponseEntity<Object> responseEntity = restTemplate.getForEntity("http://localhost:8181/getCanceledBookings/"+userEmail, Object.class);
+        ResponseEntity<Object> responseEntity = restTemplate.getForEntity("http://localhost:8181/getCanceledBookings/"+userEmail+"/"+isAdmin, Object.class);
 
         Object objects = responseEntity.getBody();
         ObjectMapper mapper =new ObjectMapper();
@@ -85,10 +86,10 @@ public class BookingClient {
         return canceledBookings;
     }
 
-    public JsonNode getUpcomingBookings(String userEmail){
+    public JsonNode getUpcomingBookings(String userEmail, boolean isAdmin){
 
         RestTemplate restTemplate = new RestTemplate(); //IS SYNCHRONOUS REST CLIENT PROVIDED BY THE CORE SPRING FRAMEWORK
-        ResponseEntity<Object> responseEntity = restTemplate.getForEntity("http://localhost:8181/getUpcomingBookings/"+userEmail, Object.class);
+        ResponseEntity<Object> responseEntity = restTemplate.getForEntity("http://localhost:8181/getUpcomingBookings/"+userEmail+"/"+isAdmin, Object.class);
         //Get consumes REST API's GET mapping response and returns domain object
 
         Object upcomingBookings = responseEntity.getBody();

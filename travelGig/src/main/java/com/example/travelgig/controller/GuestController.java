@@ -17,7 +17,7 @@ public class GuestController {
 
     @RequestMapping(value = "/saveGuest", method = RequestMethod.POST)
     public JsonNode saveGuest(@RequestBody JsonNode guest){
-        System.out.println("saving guest is called as JSON");
+
         return guestClient.saveGuest(guest);
     }
 }

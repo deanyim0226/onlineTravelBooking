@@ -21,6 +21,8 @@ import java.security.Principal;
 import java.util.List;
 import java.util.Set;
 
+//A controller is responsible for handling HTTP request and returning HTTP response to client.
+//Rest controller is support for REST API development. In case of REST API, you will probably like to return JSON or XML as your client is no more human but machine.
 @RestController
 public class UserController {
 
@@ -30,29 +32,6 @@ public class UserController {
     @Autowired
     RoleService roleService;
 
-    @RequestMapping(value = "/login")
-    public ModelAndView login(@RequestParam(required = false) String logout, @RequestParam(required = false) String error,
-                        HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse) {
-        ModelAndView mav = new ModelAndView("login");
-        System.out.println("come gere");
-
-        String message = "";
-        if (error != null) {
-            message = "Invalid Credentials";
-        }
-        if (logout != null) {
-            Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-            System.out.println(auth);
-            if (auth != null) {
-                new SecurityContextLogoutHandler().logout(httpServletRequest, httpServletResponse, auth);
-            }
-            message = "Logout";
-            return mav;
-        }
-        mav.addObject("Message", message);
-        return mav;
-
-    }
 
     @RequestMapping(value = "/getCurrentUser", method = RequestMethod.GET)
     public User getCurrentUser(Principal principal){
@@ -62,37 +41,35 @@ public class UserController {
 
         return currentUser;
     }
-
     @RequestMapping(value = "/saveUser")
-    public ModelAndView saveUser(@ModelAttribute User user){
+    public ModelAndView saveUser(User user){
+        ModelAndView mav = new ModelAndView("redirect:user");
+        userService.save(user);
+        List<User> userList = userService.findAll();
+        mav.addObject("users", userList);
+        return mav;
+    }
+
+    @RequestMapping(value = "/saveUserFromRegister")
+    public ModelAndView saveUserFromRegister(@ModelAttribute User user){
         ModelAndView mav = new ModelAndView("signup");
         //when user register from register page
         //basically role is set to customer by default
         //admin will have access to change role later
         //increase userid by 1
-
-        List<User> users = userService.findAll();
-
-        Role defaultRole = roleService.findById(Long.valueOf(2));
-        user.setRoles(Set.of(defaultRole));
-        user.setUserId(Long.valueOf(users.size()+1));
-        userService.save(user);
-        mav.setViewName("redirect:signup");
+        userService.saveFromRegister(user);
+        mav.setViewName("redirect:login");
         return mav;
     }
 
+    @RequestMapping(value = "/user")
+    public ModelAndView user(User user){
+        ModelAndView mav = new ModelAndView("user");
+        List<User> userList = userService.findAll();
+        List<Role> roleList = roleService.findAll();
 
-    @RequestMapping(value = "/role")
-    public ModelAndView role(Role role) {
-        ModelAndView mav = new ModelAndView("role");
-        return mav;
-    }
-
-    @RequestMapping(value = "/saveRole")
-    public ModelAndView saveRole(@ModelAttribute Role role) {
-        ModelAndView mav = new ModelAndView("role");
-
-        roleService.save(role);
+        mav.addObject("roles",roleList);
+        mav.addObject("users", userList);
         return mav;
     }
 
@@ -100,7 +77,6 @@ public class UserController {
     public ModelAndView signup(User user) {
         ModelAndView mav = new ModelAndView("signup");
 
-        mav.addObject("roles",roleService.findAll());
         return mav;
     }
 

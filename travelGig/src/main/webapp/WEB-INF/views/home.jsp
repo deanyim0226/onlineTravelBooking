@@ -1,6 +1,7 @@
 <%@ taglib prefix="s" uri="http://www.springframework.org/security/tags" %>
 <%@taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
 <%@taglib uri="http://www.springframework.org/tags/form" prefix="f"%>
+
 <!DOCTYPE html>
 <html>
 <head>
@@ -11,108 +12,126 @@
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
     <link rel="stylesheet" type="text/css" href="home.css">
-
+    <style>
+        .checked {
+            color: orange;
+        }
+    </style>
     <script>
         $(document).ready(function(){
 
+            let loginStatus = $("#isLoggin").val()
+
+            //booking process
             $("#confirm-guest").click(function(){
-                let guestList = []
 
-                $("tr.guest-row").each(function(){
+                if(loginStatus === "false"){
+                    alert("login to book hotel")
+                    window.location.replace("home")
 
-                    let firstName = $(this).find("input.guest-firstname").val()
-                    let lastName = $(this).find("input.guest-lastname").val()
-                    let gender = $(this).find("input.guest-gender").val()
-                    let age = $(this).find("input.guest-age").val()
+                }else {
 
-                    let guest = {firstName,lastName,gender,age}
+                    let guestList = []
 
-                    guestList.push(guest)
-                })
+                    $("tr.guest-row").each(function () {
 
-                //@SessionAttribute as long as session (Logged-in) is there, this is in scope
-                //send a request using ajax to save guest into database
-                let savedGuestList = []
+                        let firstName = $(this).find("input.guest-firstname").val()
+                        let lastName = $(this).find("input.guest-lastname").val()
+                        let gender = $(this).find("input.guest-gender").val()
+                        let age = $(this).find("input.guest-age").val()
 
-                $.each(guestList,function(index,element){
+                        let guest = {firstName, lastName, gender, age}
+
+                        guestList.push(guest)
+                    })
+
+                    //@SessionAttribute as long as session (Logged-in) is there, this is in scope
+                    //send a request using ajax to save guest into database
+                    let savedGuestList = []
+
+                    $.each(guestList, function (index, element) {
+
+                        $.ajax({
+                            type: "POST",
+                            contentType: "application/json",
+                            url: "http://localhost:8282/saveGuest",
+                            async: false,
+                            data: JSON.stringify(element),
+                            dataType: "json",
+                            success: function (response) {
+                                alert("successfully added " + response);
+                                savedGuestList.push(response);
+                            },
+                            error: function (err) {
+                                alert("error while saving guest" + err.toString());
+                            }
+                        })
+
+                    })
+
+                    /*
+                    think about the way to retrieve booking information
+                     */
+
+                    let hotelId = $("#booking_hotelId").val();
+                    let hotelRoomId = $("#booking_hotelRoomId").val();
+                    let noRooms = $("#booking_noRooms").val();
+                    let guests = savedGuestList;
+                    let checkInDate = $("#booking_checkInDate").val();
+                    let checkOutDate = $("#booking_checkOutDate").val();
+                    let bookedOnDate = new Date() //date to set
+                    let status = "UPCOMING" // by default
+                    let price = $("#booking_hotel_price").text();
+                    let discount = $("#booking_discount").text();
+                    let customerMobile = $("#booking_customerMobile").val();
+                    let roomType = $("#booking_roomType").val();
+                    let userName = "";
+                    let userEmail = "";
+                    let taxRateInPercent = 0.075;
+                    let finalCharges = $("#booking_final_price").text();
+
+                    /*
+                    think about way to retrieve the current user
+                     */
 
                     $.ajax({
-                        type:"POST",
-                        contentType:"application/json",
-                        url:"http://localhost:8282/saveGuest",
+                        type: "GET",
+                        url: "http://localhost:8282/getCurrentUser",
                         async: false,
-                        data: JSON.stringify(element),
-                        dataType:"json",
-                        success:function(response){
-                            alert("successfully added " + response);
-                            savedGuestList.push(response);
+                        success: function (response) {
+                            userName = response.userName;
+                            userEmail = response.email;
+
                         },
-                        error:function(err){
-                            alert("error while saving guest" + err.toString());
+                        error: function (err) {
+                            alert("error while retrieving user " + err)
                         }
                     })
 
-                })
-
-                /*
-                think about the way to retrieve booking information
-                 */
-
-                let hotelId = $("#booking_hotelId").val();
-                let hotelRoomId = $("#booking_hotelRoomId").val();
-                let noRooms = $("#booking_noRooms").val();
-                let guests = savedGuestList;
-                let checkInDate = $("#booking_checkInDate").val();
-                let checkOutDate = $("#booking_checkOutDate").val();
-                let bookedOnDate = new Date() //date to set
-                let status = "UPCOMING" // by default
-                let price = $("#booking_hotel_price").text();
-                let discount = $("#booking_discount").text();
-                let customerMobile = $("#booking_customerMobile").val();
-                let roomType = $("#booking_roomType").val();
-                let userName = "";
-                let userEmail = "";
-                let taxRateInPercent = 0.075;
-                let finalCharges = $("#booking_final_price").text();
-
-                /*
-                think about way to retrieve the current user
-                 */
-
-                 $.ajax({
-                     type:"GET",
-                     url:"http://localhost:8282/getCurrentUser",
-                     async: false,
-                    success:function(response){
-                        userName = response.userName;
-                        userEmail = response.email;
-
-                    },
-                    error:function(err){
-                        alert("error while retrieving user " + err)
+                    let booking = {
+                        hotelId, hotelRoomId, noRooms, guests, checkInDate, checkOutDate, bookedOnDate, status,
+                        price, discount, customerMobile, roomType, userName, userEmail, taxRateInPercent, finalCharges
                     }
-                })
-
-                let booking = { hotelId, hotelRoomId, noRooms, guests, checkInDate, checkOutDate, bookedOnDate, status,
-                    price, discount, customerMobile, roomType, userName, userEmail, taxRateInPercent, finalCharges }
-
-                $.ajax({
-                    type:"POST",
-                    contentType:"application/json",
-                    url:"http://localhost:8282/saveBooking",
-                    async: false,
-                    data: JSON.stringify(booking),
-                    dataType:"json",
-                    success:function(response){
-                        alert("successfully saved booking")
-                    },
-                    error:function(err){
-                        alert("error while saving booking info " + err)
-                    }
-                })
+                    let hotelName = $("#modal_hotelName").val()
+                    $.ajax({
+                        type: "POST",
+                        contentType: "application/json",
+                        url: "http://localhost:8282/saveBooking/"+hotelName,
+                        async: false,
+                        data: JSON.stringify(booking),
+                        dataType: "json",
+                        success: function (response) {
+                            alert("successfully saved booking")
+                        },
+                        error: function (err) {
+                            alert("error while saving booking info " + err)
+                        }
+                    })
+                }
 
             })
 
+            //to add guest info when button is clicked
             $("#add-guestInfo").click(function(){
                 let noGuest = $("#modal_noGuests").val();
 
@@ -247,17 +266,36 @@
                 $.get("/searchHotel/"+searchString,
                     function(response){
                     $.each(response,function(index,val){
-                        console.log(index)
-                        console.log(val)
+                        let string = ""
+                        let count = 1;
+                        for(let i = 0; i < 5; i++){
+                            if(count <= val.starRating){
+                                string += "<span class='star fa fa-star checked'></span>"
+                            }else{
+                                string += "<span class='star fa fa-star'></span>"
+                            }
+                            count += 1;
+                        }
+                        /*
 
                         $("#tb1Hotel").append("<tr><td>" +val.hotelName + "</td><td>" +val.address +
-                            "</td><td>" + val.averagePrice + "</td><td><img class='image' data-id='"+val.hotelId+"' src='"+val.imageURL+"' width='300' height='300'></img></td><td>" +
-                            val.starRating + "</td></tr>")
+                            "</td><td>$" + val.averagePrice + "</td><td><img class='image' data-id='"+val.hotelId+"' src='"+val.imageURL+"' width='250' height='250'></img></td><td><span> &nbsp</span>" +
+                            string +
+                            " <span> &nbsp</span></td><td><span> &nbsp &nbsp</span><a href='review?hotelId="+val.hotelId+"&hotelName="+val.hotelName+"' class='view' >View</a><span> &nbsp &nbsp</span</td></tr>")
+                            */
+
+                        $("#tb1Hotel").append("<tr><td>" +val.hotelName + "</td><td>" +val.address +
+                            "</td><td>" + val.averagePrice + "</td><td><img class='image' data-id='"+val.hotelId+"' src='"+val.imageURL+"' width='250' height='250'></img></td><td>" + val.starRating + "</td><a href='review?hotelId="+val.hotelId+"&hotelName="+val.hotelName+"' class='view' >View</a></td></tr>")
                     })
                 })
+
+
+                // <a href='review?hotelId="+val.hotelId+"' class='view' >View</a>
+
             });
 
             $("#filterBtn").click(function(){
+
                 $("#tb1Hotel tr").not(":first").show();
 
                 var selectedPrice = parseInt($("#priceValue").text());
@@ -277,6 +315,7 @@
                 }
 
                 if($("#4_star_rating").is(":checked")){
+
                     selectedRating.set($("#4_star_rating").val(), $("#4_star_rating").val());
                 }
 
@@ -286,10 +325,12 @@
 
 
                 $("#tb1Hotel tr").not(":first").each(function(index,val){
+
                     var price = $(this).children("td").eq("2").text()
                     var rating = $(this).children("td").eq("4").text()
 
                     if(price > selectedPrice){
+
                         $(this).hide();
                     }
 
@@ -317,8 +358,9 @@
 
         <ul class="nav justify-content-end">
             <s:authorize access="isAuthenticated()">
-            <li class = "nav-item"><a class="btn btn-dark dropdown"  href="userForm" >USER</a></li>
+
             <s:authorize access="hasAuthority('Admin')">
+                <li class = "nav-item"><a class="btn btn-dark dropdown"  href="user" >USER</a></li>
                 <li class = "nav-item"><a class="btn btn-dark dropdown"  href="role" >ROLE</a></li>
             </s:authorize>
                 <li class = "nav-item"><a class="btn btn-dark dropdown"   href="reservation">RESERVATION </a></li>
@@ -326,7 +368,7 @@
                 <li class = "nav-item"><a class="btn btn-dark dropdown"  href="/logout">LOGOUT</a></li>
             </s:authorize>
 
-            <c:if test="${isLoggin}">
+            <c:if test="${!isLoggin}">
                 <li class = "nav-item"><a class="btn btn-dark dropdown"  href="/login">LOGIN</a></li>
             </c:if>
 
@@ -336,18 +378,14 @@
 
 </header>
 <div class="container" style="margin-left:100px">
-    <h1>Welcome to Travel Gig</h1>
+    <input class="form-control" type="hidden" id="isLoggin" value="${isLoggin}"/>
+    <h1>Welcome to Travel Gig,
+        <s:authorize access="isAuthenticated()">
+            <s:authentication property="principal.username"/>
+        </s:authorize>
+    </h1>
     <h2>Search your desired hotel</h2>
 
-    <%
-        Object user = request.getAttribute("user");
-    %>
-
-
-    <s:authorize access="isAuthenticated()">
-        <br> User: <s:authentication property="principal.username"/>
-        <li class = "nav-item"><a class="btn btn-dark dropdown"  href="/logout">LOGOUT</a></li>
-    </s:authorize>
 
 </div>
 
@@ -446,11 +484,13 @@
 
         <div id="listHotel">
             <table id="tb1Hotel" border="1">
-                <tr><th>Name</th>
+                <tr>
+                    <th>Name</th>
                     <th>Address</th>
                     <th>Price</th>
                     <th>Image</th>
                     <th>Rating</th>
+                    <th>Review</th>
                 </tr>
             </table>
         </div>

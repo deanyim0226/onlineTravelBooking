@@ -21,7 +21,7 @@ public class SecurityConfig {
         http.httpBasic().and().csrf().disable().authorizeRequests()
                 .requestMatchers(AntPathRequestMatcher.antMatcher("/WEB-INF/jsp/**")).permitAll()
                 .and()
-                .authorizeRequests().requestMatchers("/role").hasAnyAuthority("Admin")
+                .authorizeRequests().requestMatchers("/role", "/user").hasAnyAuthority("Admin")
                 .and()
                 .authorizeRequests().requestMatchers("/").authenticated()
                 .and()
